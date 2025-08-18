@@ -229,19 +229,4 @@ Artifacts will be under `src-tauri/target/` (AppImage/deb depending on host).
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-
-## Publish to GitHub
-
-1) Create a new repo on GitHub (without initializing files).
-2) In your local project root, run:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin git@github.com:<your-username>/<your-repo>.git
-git push -u origin main
-```
-
-Then drag your screenshots into `docs/screenshots/` and push again so the images appear in the README.
+Developed by @MedGm with passion!
