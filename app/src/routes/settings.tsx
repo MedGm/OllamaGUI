@@ -3,8 +3,8 @@ import { useSettingsStore } from '../store/settingsStore'
 
 export default function SettingsRoute() {
   const {
-    serverUrl, serverPort, defaultModel, defaultParams, theme,
-    setServerUrl, setServerPort, setDefaultModel, setDefaultParams, setTheme,
+    serverUrl, serverPort, defaultModel, defaultParams,
+    setServerUrl, setServerPort, setDefaultModel, setDefaultParams,
     loadSettingsFromBackend, saveSettingsToBackend
   } = useSettingsStore()
 
@@ -46,15 +46,6 @@ export default function SettingsRoute() {
           <label className="block text-sm font-medium">Max tokens</label>
           <input type="number" value={defaultParams.maxTokens} onChange={(e) => setDefaultParams({ maxTokens: Number(e.target.value) })} className="w-full px-3 py-2 border rounded" />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium">Theme</label>
-        <select value={theme} onChange={(e) => setTheme(e.target.value as any)} className="px-3 py-2 border rounded">
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-          <option value="system">System</option>
-        </select>
       </div>
 
       <div>

@@ -1,0 +1,6 @@
+{
+  // Silence the CSS LS unknown @plugin warning (Tailwind v4 syntax is valid at build time)
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore"
+}

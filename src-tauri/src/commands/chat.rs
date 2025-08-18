@@ -155,52 +155,48 @@ pub async fn chat_stream(
                 let chunk_str = String::from_utf8_lossy(&bytes);
                 buffer.push_str(&chunk_str);
                 
-                // Process complete lines (handle both \n and \r as delimiters)
+                // Process complete lines using "\n" as delimiter (NDJSON standard).
+                // This avoids matching on Option variants directly and keeps rust-analyzer quiet.
                 loop {
-                    let nl = buffer.find('\n');
-                    let cr = buffer.find('\r');
-                    let line_end = match (nl, cr) {
-                        (Some(n), Some(r)) => Some(n.min(r)),
-                        (Some(n), None) => Some(n),
-                        (None, Some(r)) => Some(r),
-                        (None, None) => None,
-                    };
-                    let Some(pos) = line_end else { break; };
-                    let line = buffer[..pos].trim().to_string();
-                    buffer = buffer[pos + 1..].to_string();
-                    
-                    if !line.is_empty() {
-                        // DEBUG: show each NDJSON line (truncate to 400 chars)
-                        let preview = if line.len() > 400 { &line[..400] } else { &line };
-                        println!("NDJSON line: {}{}", preview, if line.len() > 400 { "..." } else { "" });
-                        match serde_json::from_str::<ChatChunk>(&line) {
-                            Ok(chat_chunk) => {
-                                // Emit the chunk to the frontend with stream id
-                                if let Err(e) = app.emit("chat:chunk", &serde_json::json!({
-                                    "stream_id": stream_id,
-                                    "message": chat_chunk.message,
-                                    "done": chat_chunk.done,
-                                    "total_duration": chat_chunk.total_duration,
-                                    "load_duration": chat_chunk.load_duration,
-                                    "prompt_eval_count": chat_chunk.prompt_eval_count,
-                                    "prompt_eval_duration": chat_chunk.prompt_eval_duration,
-                                    "eval_count": chat_chunk.eval_count,
-                                    "eval_duration": chat_chunk.eval_duration
-                                })) {
-                                    eprintln!("Failed to emit chat chunk: {}", e);
+                    if let Some(pos) = buffer.find('\n') {
+                        let line = buffer[..pos].trim().to_string();
+                        buffer = buffer[pos + 1..].to_string();
+
+                        if !line.is_empty() {
+                            // DEBUG: show each NDJSON line (truncate to 400 chars)
+                            let preview = if line.len() > 400 { &line[..400] } else { &line };
+                            println!("NDJSON line: {}{}", preview, if line.len() > 400 { "..." } else { "" });
+                            match serde_json::from_str::<ChatChunk>(&line) {
+                                Ok(chat_chunk) => {
+                                    // Emit the chunk to the frontend with stream id
+                                    if let Err(e) = app.emit("chat:chunk", &serde_json::json!({
+                                        "stream_id": stream_id,
+                                        "message": chat_chunk.message,
+                                        "done": chat_chunk.done,
+                                        "total_duration": chat_chunk.total_duration,
+                                        "load_duration": chat_chunk.load_duration,
+                                        "prompt_eval_count": chat_chunk.prompt_eval_count,
+                                        "prompt_eval_duration": chat_chunk.prompt_eval_duration,
+                                        "eval_count": chat_chunk.eval_count,
+                                        "eval_duration": chat_chunk.eval_duration
+                                    })) {
+                                        eprintln!("Failed to emit chat chunk: {}", e);
+                                    }
+
+                                    // If done, mark as completed and break
+                                    if chat_chunk.done {
+                                        stream_completed = true;
+                                        break;
+                                    }
                                 }
-                                
-                                // If done, mark as completed and break
-                                if chat_chunk.done {
-                                    stream_completed = true;
-                                    break;
+                                Err(e) => {
+                                    eprintln!("Failed to parse chat chunk: {} - Line: {}", e, line);
+                                    // Continue processing other lines instead of failing
                                 }
-                            }
-                            Err(e) => {
-                                eprintln!("Failed to parse chat chunk: {} - Line: {}", e, line);
-                                // Continue processing other lines instead of failing
                             }
                         }
+                    } else {
+                        break;
                     }
                 }
                 
