@@ -1,0 +1,68 @@
+@import "tailwindcss";
+@import "tailwindcss/typography";
+
+/* Typography tweaks for markdown */
+
+.markdown-body pre,
+.markdown-body code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.markdown-body pre {
+	background: #0a0a0a;
+	color: #f4f4f5;
+	border-radius: 0.5rem;
+}
+
+.markdown-body p {
+	margin: 0.5rem 0 1rem;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+	color: #111827;
+}
+
+/* Ensure app uses full height with flex layouts */
+html, body, #root {
+	height: 100%;
+}
+
+/* Minimal highlight.js theme for dark code blocks */
+.hljs {
+	color: #e5e7eb;
+}
+.hljs-comment,
+.hljs-quote {
+	color: #9ca3af;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+	color: #93c5fd;
+}
+.hljs-literal,
+.hljs-number,
+.hljs-tag .hljs-attr {
+	color: #fca5a5;
+}
+.hljs-string,
+.hljs-doctag,
+.hljs-regexp {
+	color: #86efac;
+}
+.hljs-title,
+.hljs-section {
+	color: #fde68a;
+}
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable {
+	color: #c4b5fd;
+}
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link {
+	color: #f9a8d4;
+}
