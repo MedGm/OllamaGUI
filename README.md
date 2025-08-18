@@ -8,14 +8,10 @@ Ollama’s official desktop app is available on Windows and macOS, while Linux u
 
 ## Screenshots
 
-Add your screenshots to `docs/screenshots/` with these names, and they will render here on GitHub:
-
 ![Overview](docs/screenshots/overview.png)
 ![Chat](docs/screenshots/chat.png)
 ![Models](docs/screenshots/models.png)
 ![Settings](docs/screenshots/settings.png)
-
-Tip: keep images ~1200px wide for readability; PNG or JPG both work.
 
 ## Features
 
