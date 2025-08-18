@@ -1,13 +1,13 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "OllamaGUI",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "identifier": "io.medgm.ollamagui",
   "build": {
     "frontendDist": "../app/dist",
     "devUrl": "http://localhost:5173",
-  "beforeDevCommand": "bash -lc 'cd ../app && npm run dev'",
-  "beforeBuildCommand": "bash -lc 'cd ../app && npm install && npm run build'"
+    "beforeDevCommand": "bash -lc 'ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd); cd $ROOT/app && npm run dev'",
+    "beforeBuildCommand": "bash -lc 'ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd); cd $ROOT/app && (npm ci || npm install) && npm run build'"
   },
   "app": {
     "windows": [
