@@ -217,12 +217,8 @@ Artifacts will be under `src-tauri/target/` (AppImage/deb depending on host).
 
 ## License
 
-No license has been chosen yet. If you plan to open‑source this project, consider one of:
-- MIT (permissive)
-- Apache‑2.0 (permissive + patent grant)
-- GPL‑3.0 (copyleft)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-To add a license: create a `LICENSE` file at the repo root with the chosen template.
 
 ## Publish to GitHub
 
