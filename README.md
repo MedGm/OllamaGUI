@@ -1,7 +1,5 @@
 # Ollama Linux GUI (Tauri + React)
 
-A fast, Linux‑native desktop GUI for Ollama with streaming chat, clean white UI, model management, and local persistence. Built with Tauri 2 (Rust) and React + TypeScript.
-
 ## About
 
 OllamaGUI is a lightweight, privacy‑first desktop app for chatting with local Ollama models on Linux. It brings a clean, ChatGPT‑style experience with streaming replies, Markdown rendering, terminal‑style code blocks, and simple model management—no CLI commands required.
