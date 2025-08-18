@@ -1,0 +1,42 @@
+name: Release (Tauri Linux AppImage)
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend deps
+        run: npm ci
+        working-directory: app
+
+      - name: Build & Release with Tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: OllamaGUI v__VERSION__
+          releaseBody: |
+            Linux AppImage build for OllamaGUI.
+            
+            - OS: Linux (x86_64)
+            - Contents: AppImage, checksums
+            
+            Notes: Requires the Ollama daemon running locally (default http://localhost:11434).
+          releaseDraft: false
+          prerelease: false
