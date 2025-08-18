@@ -2,6 +2,22 @@
 
 A fast, Linux‑native desktop GUI for Ollama with streaming chat, clean white UI, model management, and local persistence. Built with Tauri 2 (Rust) and React + TypeScript.
 
+## About
+
+OllamaGUI is a lightweight, privacy‑first desktop app for chatting with local Ollama models on Linux. It brings a clean, ChatGPT‑style experience with streaming replies, Markdown rendering, terminal‑style code blocks, and simple model management—no CLI commands required.
+
+## Install (Linux AppImage)
+
+Download the latest AppImage from the Releases page, make it executable, and run it:
+
+```bash
+wget -O OllamaGUI.AppImage https://github.com/MedGm/OllamaGUI/releases/latest/download/OllamaGUI_*_amd64.AppImage
+chmod +x OllamaGUI.AppImage
+./OllamaGUI.AppImage
+```
+
+Requirements: the Ollama daemon running locally (default http://localhost:11434).
+
 ## Motivation
 
 Ollama’s official desktop app is available on Windows and macOS, while Linux users have primarily had the CLI. This project provides a simple, polished GUI for Linux (e.g., Ubuntu) so you can use Ollama comfortably without memorizing commands.
