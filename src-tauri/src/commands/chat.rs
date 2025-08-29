@@ -6,8 +6,9 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use uuid::Uuid;
+use crate::commands::monitoring;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatMessage {
     pub role: String,
     pub content: String,
@@ -29,7 +30,7 @@ pub struct ChatOptions {
     pub max_tokens: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatChunk {
     pub message: Option<ChatMessage>,
     pub done: bool,
@@ -78,6 +79,9 @@ pub async fn chat_stream(
         .build()
         .map_err(|e| e.to_string())?;
     
+    // Clone the model name for later use in performance tracking
+    let model_name = request.model.clone();
+    
     // Prepare the request payload
     let mut payload = HashMap::new();
     payload.insert("model", serde_json::Value::String(request.model));
@@ -115,6 +119,7 @@ pub async fn chat_stream(
     }
     
     // Make the streaming request
+    println!("Posting to endpoint: {}", endpoint);
     let response = client
         .post(&endpoint)
         .header("Content-Type", "application/json")
@@ -124,9 +129,31 @@ pub async fn chat_stream(
         .map_err(|e| format!("Failed to send request: {}", e))?;
     
     if !response.status().is_success() {
+        let status = response.status();
+        let body_text = response.text().await.unwrap_or_default();
+        let error_msg = format!("HTTP error {}: {}", status, body_text);
+        eprintln!("chat_stream error: {}", error_msg);
+
+        // Emit error and completion so the frontend can clean up
+        if let Err(emit_err) = app.emit("chat:error", &serde_json::json!({
+            "stream_id": stream_id,
+            "error": error_msg
+        })) {
+            eprintln!("Failed to emit error: {}", emit_err);
+        }
+        if let Err(emit_err) = app.emit("chat:complete", serde_json::json!({"completed": false, "stream_id": stream_id})) {
+            eprintln!("Failed to emit completion signal: {}", emit_err);
+        }
+
+        // Clean up active stream registration
+        {
+            let mut active_streams = ACTIVE_STREAMS.lock().await;
+            active_streams.remove(&stream_id);
+        }
+
         return Ok(ChatResponse {
             success: false,
-            error: Some(format!("HTTP error: {}", response.status())),
+            error: Some(format!("HTTP error: {}", status)),
         });
     }
     
@@ -134,6 +161,7 @@ pub async fn chat_stream(
     let mut stream = response.bytes_stream();
     let mut buffer = String::new();
     let mut stream_completed = false;
+    let mut last_chunk: Option<ChatChunk> = None;
     
     // Emit stream start event with ID
     if let Err(e) = app.emit("chat:stream-start", serde_json::json!({"stream_id": stream_id})) {
@@ -168,6 +196,9 @@ pub async fn chat_stream(
                             println!("NDJSON line: {}{}", preview, if line.len() > 400 { "..." } else { "" });
                             match serde_json::from_str::<ChatChunk>(&line) {
                                 Ok(chat_chunk) => {
+                                    // Store the chunk for performance tracking
+                                    last_chunk = Some(chat_chunk.clone());
+                                    
                                     // Emit the chunk to the frontend with stream id
                                     if let Err(e) = app.emit("chat:chunk", &serde_json::json!({
                                         "stream_id": stream_id,
@@ -227,6 +258,9 @@ pub async fn chat_stream(
         println!("NDJSON (remaining buffer): {}", if remaining_line.len() > 400 { &remaining_line[..400] } else { remaining_line });
         match serde_json::from_str::<ChatChunk>(remaining_line) {
             Ok(chat_chunk) => {
+                // Store the chunk for performance tracking
+                last_chunk = Some(chat_chunk.clone());
+                
                 // Emit the final chunk
                 if let Err(e) = app.emit("chat:chunk", &serde_json::json!({
                     "stream_id": stream_id,
@@ -257,6 +291,42 @@ pub async fn chat_stream(
     println!("Stream processing finished. Completed: {} (ID: {})", stream_completed, stream_id);
     if let Err(e) = app.emit("chat:complete", serde_json::json!({"completed": stream_completed, "stream_id": stream_id})) {
         eprintln!("Failed to emit completion signal: {}", e);
+    }
+    
+    // Track model performance metrics if stream completed successfully
+    if stream_completed {
+        if let Some(final_chunk) = &last_chunk {
+            // Calculate token rate (tokens per second)
+            let token_rate = if let (Some(eval_count), Some(eval_duration)) = (final_chunk.eval_count, final_chunk.eval_duration) {
+                if eval_duration > 0 {
+                    (eval_count as f32) / (eval_duration as f32 / 1_000_000_000.0) // Convert nanoseconds to seconds
+                } else {
+                    0.0
+                }
+            } else {
+                0.0
+            };
+            
+            // Calculate total response time (in milliseconds)
+            let response_time = final_chunk.total_duration.unwrap_or(0) / 1_000_000; // Convert nanoseconds to milliseconds
+            
+            // Estimate memory usage (rough approximation based on model name)
+            let memory_usage = match model_name.as_str() {
+                m if m.contains("7b") => 4_000_000_000u64,   // ~4GB for 7B models
+                m if m.contains("13b") => 8_000_000_000u64,  // ~8GB for 13B models  
+                m if m.contains("70b") => 40_000_000_000u64, // ~40GB for 70B models
+                _ => 2_000_000_000u64, // Default 2GB
+            };
+            
+            // Track the performance
+            monitoring::track_model_performance(
+                &app,
+                &model_name,
+                token_rate,
+                response_time,
+                memory_usage,
+            );
+        }
     }
     
     // Clean up this stream from active streams

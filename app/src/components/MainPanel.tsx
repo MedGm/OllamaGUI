@@ -63,83 +63,83 @@ export default function MainPanel() {
   const hasMessages = messages.length > 0
   
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white">
+    <div className=" flex-1 flex flex-col min-h-0 overflow-hidden bg-white">
       {/* Chat Messages Area */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className=" flex-1 min-h-0 overflow-y-auto">
         {!hasMessages ? (
           /* Welcome Message */
-          <div className="flex flex-col items-center justify-center h-full p-8">
-            <div className="max-w-2xl text-center">
+          <div className="flex flex-col items-center justify-center h-full p-8 max-w-4xl mx-auto">
+            <div className="text-center w-full">
               {/* Ollama Logo */}
-              <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Bot size={32} className="text-white" />
+              <div className="w-20 h-20 bg-gradient-to-br from-gray-900 to-gray-700 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg">
+                <Bot size={40} className="text-white" />
               </div>
               
-              <h1 className="text-2xl font-semibold text-gray-900 mb-3">
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
                 How can I help you today?
               </h1>
               
-              <p className="text-gray-600 mb-8 text-lg">
+              <p className="text-gray-600 mb-12 text-lg max-w-2xl mx-auto">
                 {currentModel 
-                  ? `I'm ready to chat using ${currentModel}` 
-                  : 'Select a model to start chatting'
+                  ? `I'm ready to chat using ${currentModel}. Ask me anything, and I'll do my best to help!` 
+                  : 'Select a model from the dropdown above to start chatting'
                 }
               </p>
               
               {/* Quick Start Examples */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                 <button 
                   onClick={() => setMessage('Explain how this code works')}
-                  className="p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-left transition-colors group"
+                  className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-200 rounded-2xl text-left transition-all duration-200 group hover:shadow-lg hover:-translate-y-1"
                   disabled={!currentModel}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="flex items-start gap-4">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full mt-2 flex-shrink-0 group-hover:scale-110 transition-transform"></div>
                     <div>
-                      <h3 className="font-medium text-gray-900 mb-1">Explain code</h3>
-                      <p className="text-sm text-gray-600">Help me understand this function</p>
+                      <h3 className="font-semibold text-gray-900 mb-2 text-lg">Explain code</h3>
+                      <p className="text-sm text-gray-600">Help me understand how a function or algorithm works</p>
                     </div>
                   </div>
                 </button>
                 
                 <button 
                   onClick={() => setMessage('Write a professional email')}
-                  className="p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-left transition-colors group"
+                  className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border border-green-200 rounded-2xl text-left transition-all duration-200 group hover:shadow-lg hover:-translate-y-1"
                   disabled={!currentModel}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="flex items-start gap-4">
+                    <div className="w-3 h-3 bg-green-500 rounded-full mt-2 flex-shrink-0 group-hover:scale-110 transition-transform"></div>
                     <div>
-                      <h3 className="font-medium text-gray-900 mb-1">Write content</h3>
-                      <p className="text-sm text-gray-600">Create an email or article</p>
+                      <h3 className="font-semibold text-gray-900 mb-2 text-lg">Write content</h3>
+                      <p className="text-sm text-gray-600">Create professional emails, articles, or documents</p>
                     </div>
                   </div>
                 </button>
                 
                 <button 
                   onClick={() => setMessage('Help me analyze this data')}
-                  className="p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-left transition-colors group"
+                  className="p-6 bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-100 hover:to-violet-100 border border-purple-200 rounded-2xl text-left transition-all duration-200 group hover:shadow-lg hover:-translate-y-1"
                   disabled={!currentModel}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="flex items-start gap-4">
+                    <div className="w-3 h-3 bg-purple-500 rounded-full mt-2 flex-shrink-0 group-hover:scale-110 transition-transform"></div>
                     <div>
-                      <h3 className="font-medium text-gray-900 mb-1">Analyze data</h3>
-                      <p className="text-sm text-gray-600">Help me understand patterns</p>
+                      <h3 className="font-semibold text-gray-900 mb-2 text-lg">Analyze data</h3>
+                      <p className="text-sm text-gray-600">Help me find patterns and insights in datasets</p>
                     </div>
                   </div>
                 </button>
                 
                 <button 
                   onClick={() => setMessage('What is machine learning?')}
-                  className="p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-left transition-colors group"
+                  className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 border border-orange-200 rounded-2xl text-left transition-all duration-200 group hover:shadow-lg hover:-translate-y-1"
                   disabled={!currentModel}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="flex items-start gap-4">
+                    <div className="w-3 h-3 bg-orange-500 rounded-full mt-2 flex-shrink-0 group-hover:scale-110 transition-transform"></div>
                     <div>
-                      <h3 className="font-medium text-gray-900 mb-1">Answer questions</h3>
-                      <p className="text-sm text-gray-600">Get explanations on any topic</p>
+                      <h3 className="font-semibold text-gray-900 mb-2 text-lg">Answer questions</h3>
+                      <p className="text-sm text-gray-600">Get detailed explanations on any topic</p>
                     </div>
                   </div>
                 </button>
@@ -148,20 +148,22 @@ export default function MainPanel() {
           </div>
         ) : (
           /* Chat Messages */
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            {messages.map((msg) => (
-              <Message key={msg.id} message={msg} />
-            ))}
+          <div className="w-full px-6 sm:px-8 lg:px-12 py-6">
+            <div className=" max-w-4xl mx-auto">
+              {messages.map((msg) => (
+                <Message key={msg.id} message={msg} />
+              ))}
+            </div>
             <div ref={messagesEndRef} />
           </div>
         )}
       </div>
       
       {/* Input Area */}
-      <div className="border-t border-gray-200 bg-gray-50">
-        <div className="max-w-3xl mx-auto w-full p-4 sm:p-6">
+      <div className="border-t border-gray-100 bg-gray-50/50 backdrop-blur-sm">
+        <div className="w-full max-w-4xl mx-auto p-6 sm:p-8">
           <div className="relative">
-            <div className="flex items-end gap-3 bg-white border border-gray-200 rounded-2xl p-3 focus-within:ring-2 focus-within:ring-black focus-within:border-transparent">
+            <div className="flex items-end gap-4 bg-white border border-gray-200 rounded-3xl p-4 focus-within:ring-2 focus-within:ring-gray-900 focus-within:border-transparent shadow-sm transition-all duration-200">
               <div className="flex-1">
                 <textarea
                   value={message}
@@ -169,33 +171,33 @@ export default function MainPanel() {
                   onKeyDown={handleKeyDown}
                   onInput={handleInput}
                   placeholder={currentModel ? "Message Ollama..." : "Select a model to start chatting"}
-                  className="w-full resize-none bg-transparent focus:outline-none text-gray-900 placeholder-gray-500 text-base leading-6"
-                  style={{ minHeight: '24px', maxHeight: '200px' }}
+                  className="w-full resize-none bg-transparent focus:outline-none text-gray-900 placeholder-gray-500 text-base leading-7"
+                  style={{ minHeight: '28px', maxHeight: '200px' }}
                   rows={1}
                   disabled={!currentModel || isStreaming}
                 />
               </div>
               <button 
-                className={`p-2 rounded-lg transition-all ${
+                className={`p-3 rounded-2xl transition-all duration-200 ${
                   isStreaming
-                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg' 
                     : message.trim() && currentModel
-                    ? 'bg-black hover:bg-gray-800 text-white' 
+                    ? 'bg-gray-900 hover:bg-gray-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5' 
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
                 disabled={!currentModel && !isStreaming}
                 onClick={isStreaming ? handleStopStreaming : handleSendMessage}
               >
                 {isStreaming ? (
-                  <Square size={18} />
+                  <Square size={20} />
                 ) : (
-                  <ArrowUp size={18} />
+                  <ArrowUp size={20} />
                 )}
               </button>
             </div>
           </div>
           
-          <div className="flex justify-center mt-3">
+          <div className="flex justify-center mt-4">
             <p className="text-xs text-gray-500">
               {currentModel 
                 ? 'Ollama can make mistakes. Consider checking important information.'

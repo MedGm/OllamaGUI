@@ -7,21 +7,29 @@ pub fn run() {
     .plugin(tauri_plugin_shell::init())
     .invoke_handler(tauri::generate_handler![
       commands::sys::server_health,
+      commands::sys::detect_ollama,
+      commands::sys::start_ollama_service,
+      commands::sys::stop_ollama_service,
       commands::chat::chat_stream,
       commands::chat::abort_chat,
-  commands::models::models_list,
-  commands::models::model_pull,
-  commands::models::model_delete,
-  commands::models::model_show
-  ,commands::settings::settings_get
-  ,commands::settings::settings_set
-  ,commands::db::db_create_chat
-  ,commands::db::db_append_message
-  ,commands::db::db_list_chats
-  ,commands::db::db_list_messages
-  ,commands::db::db_delete_chat
-  ,commands::db::db_set_chat_model
-  ,commands::db::db_list_chats_with_flags
+      commands::models::models_list,
+      commands::models::model_pull,
+      commands::models::model_delete,
+      commands::models::model_show,
+      commands::settings::settings_get,
+      commands::settings::settings_set,
+      commands::db::db_create_chat,
+      commands::db::db_append_message,
+      commands::db::db_list_chats,
+      commands::db::db_list_messages,
+      commands::db::db_delete_chat,
+      commands::db::db_set_chat_model,
+      commands::db::db_list_chats_with_flags,
+      commands::monitoring::start_system_monitoring,
+      commands::monitoring::stop_system_monitoring,
+      commands::monitoring::get_system_metrics,
+      commands::monitoring::get_model_metrics,
+      commands::monitoring::get_ollama_status
     ])
     .setup(|app| {
       if cfg!(debug_assertions) {

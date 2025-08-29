@@ -1,4 +1,4 @@
-import { Settings, Database, Plus, Search, Bot, Trash2 } from 'lucide-react'
+import { Settings, Database, Plus, Search, Bot, Trash2, Activity } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useUIStore } from '../store/uiStore'
 import { invoke } from '@tauri-apps/api/core'
@@ -62,14 +62,17 @@ export default function Sidebar() {
   }, [searchQuery, chats])
   
   return (
-  <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col overflow-hidden">
+    <div className="w-80 bg-white border-r border-gray-200 flex flex-col overflow-hidden shadow-sm">
       {/* Header with Ollama Logo */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-            <Bot size={20} className="text-white" />
+      <div className="p-6 border-b border-gray-100">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
+            <Bot size={24} className="text-white" />
           </div>
-          <h1 className="text-xl font-semibold text-gray-900">Ollama</h1>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Ollama</h1>
+            <p className="text-xs text-gray-500">AI Chat Interface</p>
+          </div>
         </div>
         
         {/* New Chat Button */}
@@ -98,15 +101,15 @@ export default function Sidebar() {
               setView('chat')
             }
           }}
-          className="w-full flex items-center gap-3 px-4 py-3 bg-black hover:bg-gray-800 text-white rounded-lg transition-colors font-medium"
+          className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
         >
-          <Plus size={18} />
-          New chat
+          <Plus size={20} />
+          <span>New chat</span>
         </button>
       </div>
       
       {/* Search */}
-      <div className="p-4">
+      <div className="px-6 py-4 border-b border-gray-100">
         <div className="relative">
           <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
@@ -114,23 +117,26 @@ export default function Sidebar() {
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+            className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:bg-white text-sm transition-all duration-200"
           />
         </div>
       </div>
       
       {/* Chat List */}
-  <div className="flex-1 overflow-y-auto px-4">
-        <div className="space-y-1">
+      <div className="flex-1 overflow-y-auto px-6 py-2">
+        <div className="space-y-2">
           {filtered.length === 0 ? (
-            <div className="py-10 text-center text-gray-500">
-              <div className="text-sm">No conversations yet</div>
+            <div className="py-12 text-center text-gray-500">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Bot size={20} className="text-gray-400" />
+              </div>
+              <div className="text-sm font-medium">No conversations yet</div>
               <div className="text-xs text-gray-400 mt-1">Start a new chat to see it here</div>
             </div>
           ) : (
-            <div className="space-y-1">
+            <div className="space-y-2">
               {filtered.map((c) => (
-                <div key={c.id} className="flex items-center gap-2">
+                <div key={c.id} className="flex items-center gap-3 group">
                   <button
                     onClick={async () => {
                       // If chat has a preferred model, set it
@@ -140,23 +146,37 @@ export default function Sidebar() {
                       await loadChat(c.id)
                       setView('chat')
                     }}
-                    className={`flex-1 min-w-0 text-left px-3 py-2 rounded-lg border transition-colors ${
-                      currentChatId === c.id ? 'bg-white border-gray-300' : 'bg-gray-50 hover:bg-gray-100 border-transparent'
+                    className={`flex-1 min-w-0 text-left px-4 py-3 rounded-xl border transition-all duration-200 ${
+                      currentChatId === c.id 
+                        ? 'bg-gray-50 border-gray-200 shadow-sm' 
+                        : 'bg-white hover:bg-gray-50 border-transparent hover:border-gray-100 hover:shadow-sm'
                     }`}
                   >
-                    <div className="text-sm font-medium text-gray-900 truncate">{c.model || 'Untitled chat'}</div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                      <div className="text-sm font-semibold text-gray-900 truncate">
+                        {c.model || 'Untitled chat'}
+                      </div>
+                    </div>
                     {previews[c.id] && (
-                      <div className="text-xs text-gray-600 truncate block max-w-full">{previews[c.id]}</div>
+                      <div className="text-xs text-gray-600 truncate ml-5 mb-1">
+                        {previews[c.id]}
+                      </div>
                     )}
-                    <div className="text-[10px] text-gray-400 truncate">{new Date(c.updated_at).toLocaleString()}</div>
+                    <div className="text-[10px] text-gray-400 truncate ml-5">
+                      {new Date(c.updated_at).toLocaleString()}
+                    </div>
                   </button>
                   <button
                     title={c.has_messages ? 'Delete chat' : 'Cannot delete an empty chat'}
-                    className={`p-2 rounded ${c.has_messages ? 'text-gray-500 hover:text-red-600 hover:bg-red-50' : 'text-gray-300 cursor-not-allowed'}`}
+                    className={`p-2 rounded-lg transition-colors ${
+                      c.has_messages 
+                        ? 'text-gray-400 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100' 
+                        : 'text-gray-200 cursor-not-allowed'
+                    }`}
                     onClick={async (e) => {
                       e.stopPropagation()
                       if (!c.has_messages) {
-                        // Passive UX: do nothing if disabled
                         return
                       }
                       try {
@@ -186,15 +206,28 @@ export default function Sidebar() {
       </div>
       
       {/* Bottom Navigation */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="space-y-1">
-          <button onClick={() => setView('models')} className="w-full flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-sm">
-            <Database size={18} />
-            Manage models
+      <div className="p-6 border-t border-gray-100">
+        <div className="space-y-2">
+          <button 
+            onClick={() => setView('monitoring')} 
+            className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-200 text-sm font-medium"
+          >
+            <Activity size={20} />
+            <span>Monitoring</span>
           </button>
-            <button onClick={() => setView('settings')} className="w-full flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-sm">
-            <Settings size={18} />
-            Settings
+          <button 
+            onClick={() => setView('models')} 
+            className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-200 text-sm font-medium"
+          >
+            <Database size={20} />
+            <span>Manage models</span>
+          </button>
+          <button 
+            onClick={() => setView('settings')} 
+            className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-200 text-sm font-medium"
+          >
+            <Settings size={20} />
+            <span>Settings</span>
           </button>
         </div>
       </div>

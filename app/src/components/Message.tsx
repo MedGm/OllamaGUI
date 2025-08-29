@@ -11,7 +11,7 @@ export default function Message({ message }: MessageProps) {
   const [copied, setCopied] = useState(false)
   
   // Debug re-renders
-  console.log('🔄 Message component render:', message.id, 'content length:', message.content.length, 'isStreaming:', message.isStreaming)
+  console.log('´Message component render:', message.id, 'content length:', message.content.length, 'isStreaming:', message.isStreaming)
   
   const copyToClipboard = async () => {
     try {
@@ -26,15 +26,17 @@ export default function Message({ message }: MessageProps) {
   const isUser = message.role === 'user'
   
   return (
-    <div className={`flex items-start gap-4 p-6 ${isUser ? 'bg-gray-50' : 'bg-white'} group`}>
+    <div className={`w-full flex items-start gap-6 py-8 ${isUser ? 'bg-gray-50/50' : 'bg-white'} group border-b border-gray-100/50 last:border-b-0`}>
       {/* Avatar */}
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-        isUser ? 'bg-blue-600' : 'bg-black'
+      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm ${
+        isUser 
+          ? 'bg-gradient-to-br from-blue-600 to-blue-700' 
+          : 'bg-gradient-to-br from-gray-900 to-gray-700'
       }`}>
         {isUser ? (
-          <User size={16} className="text-white" />
+          <User size={20} className="text-white" />
         ) : (
-          <Bot size={16} className="text-white" />
+          <Bot size={20} className="text-white" />
         )}
       </div>
       
@@ -42,16 +44,16 @@ export default function Message({ message }: MessageProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className={`text-sm font-medium mb-1 ${
+            <div className={`text-sm font-semibold mb-3 ${
               isUser ? 'text-blue-900' : 'text-gray-900'
             }`}>
               {isUser ? 'You' : 'Assistant'}
             </div>
             
-            <div className="prose prose-sm max-w-none text-gray-900 leading-relaxed">
+            <div className="prose prose-base max-w-none text-gray-900 leading-relaxed">
               <Markdown content={message.content} />
               {message.isStreaming && (
-                <span className="inline-block w-2 h-4 bg-gray-400 animate-pulse ml-1"></span>
+                <span className="inline-block w-2 h-5 bg-gray-400 animate-pulse ml-1 rounded-full"></span>
               )}
             </div>
           </div>
@@ -60,10 +62,10 @@ export default function Message({ message }: MessageProps) {
           {!isUser && message.content && (
             <button
               onClick={copyToClipboard}
-              className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-gray-600 transition-all ml-2"
+              className="opacity-0 group-hover:opacity-100 p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all ml-4"
               title="Copy message"
             >
-              {copied ? <Check size={16} /> : <Copy size={16} />}
+              {copied ? <Check size={18} /> : <Copy size={18} />}
             </button>
           )}
         </div>

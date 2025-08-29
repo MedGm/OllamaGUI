@@ -66,3 +66,24 @@ html, body, #root {
 .hljs-link {
 	color: #f9a8d4;
 }
+
+/* Custom slider styles */
+.slider::-webkit-slider-thumb {
+	appearance: none;
+	height: 16px;
+	width: 16px;
+	background: #3B82F6;
+	border-radius: 50%;
+	cursor: pointer;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.slider::-moz-range-thumb {
+	height: 16px;
+	width: 16px;
+	background: #3B82F6;
+	border-radius: 50%;
+	cursor: pointer;
+	border: none;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

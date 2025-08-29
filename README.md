@@ -26,6 +26,7 @@ Ollama’s official desktop app is available on Windows and macOS, while Linux u
 ![Chat](docs/screenshots/chat.png)
 ![Models](docs/screenshots/models.png)
 ![Settings](docs/screenshots/settings.png)
+![Monitoring](docs/screenshots/monitoring.png)
 
 ## Features
 
@@ -41,9 +42,17 @@ Ollama’s official desktop app is available on Windows and macOS, while Linux u
 - Settings
   - Server URL/port, theme, defaults
   - Persisted locally
+- Automatic setup & detection (Phase 1)
+  - Detect running Ollama daemon and version
+  - Setup wizard with service status and helpful actions
+  - Resilient command surface that handles offline states
 - Persistence (SQLite)
   - Chats and messages stored in `~/.config/ollama-gui/app.db`
   - Cascade delete; auto refresh sidebar
+- Real‑time Monitoring (Phase 2)
+  - System metrics (CPU, memory, network) with live charts
+  - Ollama server status (version, health, loaded models)
+  - Model performance snapshots (token rate, response time)
 
 ## Prerequisites
 
@@ -84,12 +93,15 @@ This project follows a thin‑frontend / native‑bridge model where React drive
 - `src-tauri/src/commands/chat.rs` — chat streaming (`chat_stream`), abort (`abort_chat`)
 - `src-tauri/src/commands/models.rs` — models list/pull/delete/show
 - `src-tauri/src/commands/settings.rs` — settings get/set (JSON on disk)
+- `src-tauri/src/commands/monitoring.rs` — system metrics, Ollama status, and model performance events
 - `src-tauri/src/commands/db.rs` — chats/messages CRUD and helpers
 - `src-tauri/src/db/mod.rs` — SQLite init (WAL, foreign_keys), connection setup
 - `app/src/store/chatStore.ts` — chat orchestration, streaming lifecycle
+- `app/src/store/monitoringStore.ts` — metrics history, listeners, normalization and guards
 - `app/src/store/modelsStore.ts` — models list/pull progress, delete/show
 - `app/src/store/settingsStore.ts` — persisted settings state + IPC sync
 - `app/src/components/*` — TopBar, Sidebar, MainPanel, Message, ModelPicker, etc.
+  - `MonitoringDashboard.tsx` — live system & model performance dashboard
 
 ### IPC surface (Tauri commands)
 
@@ -119,6 +131,7 @@ This project follows a thin‑frontend / native‑bridge model where React drive
 - Chat stream: `chat:stream-start`, `chat:chunk`, `chat:complete`, `chat:error`, `chat:cancelled` (correlated via `stream_id`)
 - Model pull: `models:pull-start`, `models:pull-progress`, `models:pull-complete`, `models:pull-error`
 - UI refresh: custom browser event `chats-refresh` (after message save / chat changes)
+- Monitoring: `monitoring:system-metrics`, `monitoring:model-metrics`, `monitoring:ollama-status`
 
 ### Key data flows
 
@@ -139,6 +152,14 @@ UI → update progress bar; merge into models list on completion
 ```
 
 3) Persistence
+
+4) Monitoring
+```
+UI → invoke('start_system_monitoring', { interval_ms })
+Rust → periodic system/ollama collection
+Rust → emit monitoring:* events (system, model, status)
+UI → update tiles and mini‑charts; stop on unmount
+```
 ```
 UI → invoke('db_create_chat') / invoke('db_append_message')
 Rust → sqlx (SQLite) write; cascade rules for delete
@@ -223,25 +244,18 @@ Artifacts will be under `src-tauri/target/` (AppImage/deb depending on host).
 - Chat subtitles & auto‑title from first user line
 - Markdown polish (tables/quotes), copy whole message
 - Optional cancel model pull
-- Packaging: Flatpak / AppImage pipelines
+- Packaging: AppImage pipelines
+- GPU metrics (NVML/ROCm) in monitoring
+- Persisted trend history and alert thresholds
+
+## Recent updates
+
+- Phase 1: Automatic Ollama setup & detection (wizard, health checks, service control)
+- UI refresh: modern white theme across Sidebar, TopBar, MainPanel, Message, ModelPicker, Settings
+- Streaming: robust NDJSON handling with `stream_id` correlation and cancellation
+- Phase 2: Monitoring dashboard with system metrics, Ollama status, and model performance
+- Stability: guards against NaN/undefined in charts, ErrorBoundary wrapping, and cleanup on unmount to reduce callback warnings
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-## Publish to GitHub
-
-1) Create a new repo on GitHub (without initializing files).
-2) In your local project root, run:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin git@github.com:<your-username>/<your-repo>.git
-git push -u origin main
-```
-
-Then drag your screenshots into `docs/screenshots/` and push again so the images appear in the README.
